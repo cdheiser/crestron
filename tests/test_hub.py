@@ -217,6 +217,7 @@ async def test_poll_collects_state_for_all_zones(
 ) -> None:
     entry = _make_entry(["KITCHEN", "DECK"])
     entry.add_to_hass(hass)
+    # DECK is off, so only POWER is queried for it — no VOLUME/SOURCE lines.
     open_stub.enqueue(
         2000,
         [
@@ -224,8 +225,6 @@ async def test_poll_collects_state_for_all_zones(
             "KITCHEN VOLUME CURRENT 40\r\n",
             "KITCHEN SOURCE CHROMECAST\r\n",
             "DECK POWER OFF\r\n",
-            "DECK VOLUME CURRENT 0\r\n",
-            "DECK SOURCE ITUNES\r\n",
         ],
     )
 
@@ -240,8 +239,11 @@ async def test_poll_collects_state_for_all_zones(
         "volume": 40,
         "source": "CHROMECAST",
     }
-    assert data["DECK"] == {
-        "power": "DECK POWER OFF",
-        "volume": 0,
-        "source": "ITUNES",
-    }
+    assert data["DECK"] == {"power": "DECK POWER OFF"}
+    # Only 4 lines consumed (3 KITCHEN + 1 DECK POWER); VOLUME/SOURCE skipped for OFF zone.
+    assert open_stub.writers[0].writes == [
+        "KITCHEN POWER\r\n",
+        "KITCHEN VOLUME CHECK\r\n",
+        "KITCHEN SOURCE\r\n",
+        "DECK POWER\r\n",
+    ]
