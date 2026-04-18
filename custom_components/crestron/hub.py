@@ -235,13 +235,17 @@ class CrestronHub:
                 power = await self.request(f"{zone} POWER")
                 if power is not None:
                     zone_state["power"] = power
-                volume_line = await self.request(f"{zone} VOLUME CHECK")
-                if volume_line:
-                    with contextlib.suppress(ValueError):
-                        zone_state["volume"] = int(volume_line.split()[-1])
-                source_line = await self.request(f"{zone} SOURCE")
-                if source_line:
-                    zone_state["source"] = source_line.split()[-1]
+                # Crestron only responds to VOLUME/SOURCE when the zone is on,
+                # so skip them otherwise — each silent query wastes a full
+                # command timeout.
+                if power and power.upper().endswith("ON"):
+                    volume_line = await self.request(f"{zone} VOLUME CHECK")
+                    if volume_line:
+                        with contextlib.suppress(ValueError):
+                            zone_state["volume"] = int(volume_line.split()[-1])
+                    source_line = await self.request(f"{zone} SOURCE")
+                    if source_line:
+                        zone_state["source"] = source_line.split()[-1]
             except ConnectionError as exc:
                 had_error = True
                 _LOGGER.debug("Poll failed for zone %s: %s", zone, exc)
