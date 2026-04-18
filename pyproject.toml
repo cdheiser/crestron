@@ -1,6 +1,6 @@
 [project]
 name = "crestron-hacs"
-version = "0.1.0b1"
+version = "0.0.0"
 description = "Home Assistant custom integration for Crestron audio over telnet"
 requires-python = ">=3.12"
 
