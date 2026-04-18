@@ -21,6 +21,11 @@ def _make_hub(zone_data: dict | None = None) -> MagicMock:
     hub.coordinator.last_update_success = True
     hub.coordinator.async_request_refresh = AsyncMock()
     hub.coordinator.async_add_listener = MagicMock()
+
+    def _set(new_data: dict) -> None:
+        hub.coordinator.data = new_data
+
+    hub.coordinator.async_set_updated_data = MagicMock(side_effect=_set)
     return hub
 
 
@@ -114,3 +119,37 @@ async def test_async_select_unknown_source_is_noop() -> None:
     zone = CrestronZone(hub, "KITCHEN")
     await zone.async_select_source("Bogus")
     hub.command.assert_not_awaited()
+
+
+async def test_turn_on_optimistically_updates_state() -> None:
+    hub = _make_hub({"power": "KITCHEN POWER OFF"})
+    zone = CrestronZone(hub, "KITCHEN")
+    await zone.async_turn_on()
+    assert hub.coordinator.data["KITCHEN"]["power"].endswith("ON")
+    assert zone.state == MediaPlayerState.ON
+
+
+async def test_turn_off_optimistically_updates_state() -> None:
+    hub = _make_hub({"power": "KITCHEN POWER ON"})
+    zone = CrestronZone(hub, "KITCHEN")
+    await zone.async_turn_off()
+    assert hub.coordinator.data["KITCHEN"]["power"].endswith("OFF")
+    assert zone.state == MediaPlayerState.OFF
+
+
+async def test_set_volume_optimistically_updates_level() -> None:
+    hub = _make_hub({"power": "KITCHEN POWER ON"})
+    zone = CrestronZone(hub, "KITCHEN")
+    await zone.async_set_volume_level(0.25)
+    assert hub.coordinator.data["KITCHEN"]["volume"] == 25
+    assert zone.volume_level == 0.25
+
+
+async def test_select_source_optimistically_updates_source_and_power() -> None:
+    hub = _make_hub({"power": "KITCHEN POWER OFF"})
+    zone = CrestronZone(hub, "KITCHEN")
+    await zone.async_select_source("Chromecast")
+    assert hub.coordinator.data["KITCHEN"]["source"] == "CHROMECAST"
+    assert hub.coordinator.data["KITCHEN"]["power"].endswith("ON")
+    assert zone.source == "Chromecast"
+    assert zone.state == MediaPlayerState.ON
