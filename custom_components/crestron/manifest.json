@@ -7,5 +7,5 @@
   "issue_tracker": "https://github.com/cdheiser/crestron/issues",
   "iot_class": "local_polling",
   "requirements": ["telnetlib3>=2.0.4"],
-  "version": "2.0.0"
+  "version": "0.1.0b1"
 }
