@@ -41,7 +41,7 @@ class CrestronHub:
         self._reader: Any = None
         self._writer: Any = None
         self._io_lock = asyncio.Lock()
-        self._last_reboot_monotonic: float = 0.0
+        self._last_reboot_monotonic: float = float("-inf")
 
         self.coordinator: DataUpdateCoordinator[dict[str, dict[str, Any]]] = (
             DataUpdateCoordinator(
@@ -163,7 +163,7 @@ class CrestronHub:
         """Public hook so entities / services can force a reboot."""
         async with self._io_lock:
             await self._close_locked()
-            self._last_reboot_monotonic = 0.0  # force send regardless of cooldown
+            self._last_reboot_monotonic = float("-inf")  # force send regardless of cooldown
             await self._trigger_reboot()
 
     # --- Protocol ----------------------------------------------------------
