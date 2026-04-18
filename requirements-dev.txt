@@ -1,0 +1,6 @@
+ruff
+mypy
+pytest
+pytest-asyncio
+pytest-homeassistant-custom-component
+telnetlib3>=2.0.4

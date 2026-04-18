@@ -1,0 +1,43 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Crestron Audio",
+        "description": "Enter the connection details for your Crestron audio controller. Zones are the same zone names used by your Crestron program (e.g. KITCHEN, DECK, PATIO).",
+        "data": {
+          "host": "Host",
+          "port": "Audio control port",
+          "reboot_port": "Reboot (standard telnet) port",
+          "zones": "Zones (comma-separated)"
+        }
+      }
+    },
+    "error": {
+      "no_zones": "At least one zone name is required."
+    },
+    "abort": {
+      "already_configured": "This Crestron host is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Crestron Audio",
+        "description": "Update zones or the reboot port.",
+        "data": {
+          "reboot_port": "Reboot (standard telnet) port",
+          "zones": "Zones (comma-separated)"
+        }
+      }
+    },
+    "error": {
+      "no_zones": "At least one zone name is required."
+    }
+  },
+  "issues": {
+    "deprecated_yaml": {
+      "title": "Crestron YAML configuration is deprecated",
+      "description": "Configuring Crestron via `media_player: platform: crestron` YAML is deprecated. Your YAML zones have been imported into a config entry under Settings \u2192 Devices & Services. Remove the `crestron` platform blocks from `configuration.yaml` to clear this warning."
+    }
+  }
+}

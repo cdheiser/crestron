@@ -1,0 +1,11 @@
+{
+  "domain": "crestron",
+  "name": "Crestron Audio",
+  "codeowners": ["@cdheiser"],
+  "config_flow": true,
+  "documentation": "https://github.com/cdheiser/crestron",
+  "issue_tracker": "https://github.com/cdheiser/crestron/issues",
+  "iot_class": "local_polling",
+  "requirements": ["telnetlib3>=2.0.4"],
+  "version": "2.0.0"
+}

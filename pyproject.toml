@@ -1,0 +1,69 @@
+[project]
+name = "crestron-hacs"
+version = "2.0.0"
+description = "Home Assistant custom integration for Crestron audio over telnet"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = [".venv", "tests/fixtures"]
+
+[tool.ruff.lint]
+select = [
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "F",    # pyflakes
+  "I",    # isort
+  "B",    # bugbear
+  "UP",   # pyupgrade
+  "RUF",  # ruff-specific
+  "SIM",  # simplify
+  "C4",   # comprehensions
+  "PL",   # pylint
+  "PTH",  # use pathlib
+  "ASYNC",
+  "TID",  # tidy imports
+]
+ignore = [
+  "E501",     # line too long (handled by formatter)
+  "PLR0913",  # too many args (HA entities)
+  "PLR2004",  # magic values
+  "PLR0911",  # too many returns
+  "PLR0912",  # too many branches
+  "PLR0915",  # too many statements
+  "SIM108",   # ternary-vs-if (readability)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["PLR2004", "B011", "ASYNC"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["custom_components.crestron"]
+force-sort-within-sections = true
+
+[tool.mypy]
+python_version = "3.14"
+strict = false
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+check_untyped_defs = true
+disallow_untyped_defs = false
+show_error_codes = true
+no_implicit_optional = true
+explicit_package_bases = true
+namespace_packages = true
+exclude = [".venv/", "tests/"]
+
+[[tool.mypy.overrides]]
+module = ["telnetlib3", "telnetlib3.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-ra -q"
+filterwarnings = [
+  "ignore::DeprecationWarning:homeassistant.*",
+]
