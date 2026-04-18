@@ -235,9 +235,6 @@ class CrestronHub:
                 power = await self.request(f"{zone} POWER")
                 if power is not None:
                     zone_state["power"] = power
-                # Crestron only responds to VOLUME/SOURCE when the zone is on,
-                # so skip them otherwise — each silent query wastes a full
-                # command timeout.
                 if power and power.upper().endswith("ON"):
                     volume_line = await self.request(f"{zone} VOLUME CHECK")
                     if volume_line:
