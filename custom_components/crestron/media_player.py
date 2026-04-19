@@ -151,16 +151,27 @@ class CrestronZone(CoordinatorEntity[Any], MediaPlayerEntity):
 
     # --- Commands ---------------------------------------------------------
 
+    def _apply_optimistic(self, updates: dict[str, Any]) -> None:
+        data = dict(self.coordinator.data or {})
+        zone_state = dict(data.get(self._zone, {}))
+        zone_state.update(updates)
+        data[self._zone] = zone_state
+        self.coordinator.async_set_updated_data(data)
+
     async def async_turn_on(self) -> None:
         await self._hub.command(f"{self._zone} ON")
+        self._apply_optimistic({"power": f"{self._zone} POWER ON"})
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self) -> None:
         await self._hub.command(f"{self._zone} OFF")
+        self._apply_optimistic({"power": f"{self._zone} POWER OFF"})
         await self.coordinator.async_request_refresh()
 
     async def async_set_volume_level(self, volume: float) -> None:
-        await self._hub.command(f"{self._zone} VOLUME SET {round(volume * 100)}")
+        level = round(volume * 100)
+        await self._hub.command(f"{self._zone} VOLUME SET {level}")
+        self._apply_optimistic({"volume": level})
         await self.coordinator.async_request_refresh()
 
     async def async_volume_up(self) -> None:
@@ -182,4 +193,7 @@ class CrestronZone(CoordinatorEntity[Any], MediaPlayerEntity):
             _LOGGER.warning("Unknown Crestron source: %s", source)
             return
         await self._hub.command(f"{self._zone} {code}")
+        self._apply_optimistic(
+            {"power": f"{self._zone} POWER ON", "source": code}
+        )
         await self.coordinator.async_request_refresh()
